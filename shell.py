@@ -111,7 +111,6 @@ class someshell(cmd.Cmd):
     def do_stop(self, host):
         """ Shutdown a cluster
         """
-        line = host.split()
         user = input("Please enter your username: ")
         password = getpass.getpass("Password: ")
         SI = connect.SmartConnect(host=host, user=user,
@@ -137,6 +136,7 @@ class someshell(cmd.Cmd):
                 
             > SAVE DC STATE!!!
             > Be nicer.
+            > Parameters
             """
             for host in hosts.view:
                 print(host.name)
@@ -158,25 +158,49 @@ class someshell(cmd.Cmd):
     def do_start(self, host):
         """ Start a cluster
         """
-        line = host.split()
         user = input("Please enter your username: ")
         password = getpass.getpass("Password: ")
         SI = connect.SmartConnect(host=host, user=user,
                                   pwd=password,
                                   port=443)
-        if host:
-            with open('uuid-to-power-on.txt') as uuid:
-                for line in uuid:
-                    line = line.strip()
-                    if uuid:
-                        try:
-                            VM = SI.content.searchIndex.FindByUuid(
-                                None, line, True, True)
-                            TASK = VM.PowerOn()
-                            tasks.wait_for_tasks(SI, [TASK])
 
-                        except vim.fault.InvalidPowerState:
-                            pass
+        content = SI.RetrieveContent()
+        objview = content.viewManager.CreateContainerView(content.rootFolder,
+                                                          [vim.VirtualMachine],
+                                                          True)
+
+        hosts = content.viewManager.CreateContainerView(content.rootFolder,
+                                                        [vim.HostSystem],
+                                                        True)
+
+        if host:
+            print("You're connected to {0}".format(host))
+            print("-" * 70)
+            print("Hosts available here: ")
+            print("")
+            """
+            TODO:
+
+            > SAVE DC STATE!!!
+            > Be nicer.
+            """
+            for host in hosts.view:
+                print(host.name)
+            print("-" * 70)
+
+            regex = input("Host regex?: ")
+            bar = Bar('Powered off/total (vcenter) VirtualMachines: ', max=len(objview.view))
+            for vm in objview.view:
+                """ MIND THIS!! :D
+                """
+                if re.match(regex, vm.runtime.host.name):
+                    vm.PowerOn()
+                    bar.next()
+            bar.finish()
+
+        else:
+            print("Please provide a vmware host to connect")
+
 
     def do_shell(self, line):
         "Run a shell command"
