@@ -64,3 +64,11 @@ First attempt to manage ESXi/vCenter through cmd python module and pyVmomi
     Container Version:       vmx-07
     **********************************************************************
     You have a total of 48 VM in someesxi.domain.tld
+
+## Shell command(s):
+
+    It also takes command from your OS shell.
+
+    (Cmd) !uname -a
+    running shell command: uname -a
+    Darwin tarro 13.4.0 Darwin Kernel Version 13.4.0: Wed Mar 18 16:20:14 PDT 2015; root:xnu-2422.115.14~1/RELEASE_X86_64 x86_64
