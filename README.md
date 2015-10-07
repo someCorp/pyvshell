@@ -2,7 +2,7 @@
 
 First attempt to manage ESXi/vCenter through cmd python module and pyVmomi
 
-stop command:
+## stop command:
 
     (Cmd) stop someesxi.domain.tld
     Please enter your username: root
@@ -32,7 +32,7 @@ stop command:
     Powered off/total (vcenter) VirtualMachines:  |################                | 24/48
 
 
-ls command:
+## ls command:
 
     (Cmd) ls someesxi.domain.tld
     Please enter your username: root
