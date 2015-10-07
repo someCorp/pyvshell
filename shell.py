@@ -9,7 +9,6 @@ from pyVmomi import vmodl
 from pyVmomi import vim
 from progress.bar import Bar
 
-from tools import tasks
 from tools import pchelper
 
 
