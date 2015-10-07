@@ -32,7 +32,7 @@ stop command:
     Powered off/total (vcenter) VirtualMachines:  |################                | 24/48
 
 
-ls function:
+ls command:
 
     (Cmd) ls someesxi.domain.tld
     Please enter your username: root
