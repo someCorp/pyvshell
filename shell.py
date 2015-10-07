@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Please install pyVmomi and progressbar
 #
 # pip install pyvmomi
@@ -8,9 +8,9 @@ from pyVim import connect
 from pyVmomi import vmodl
 from pyVmomi import vim
 from progress.bar import Bar
+from __future__ import print_function
 
 from tools import pchelper
-
 
 import re
 import os
