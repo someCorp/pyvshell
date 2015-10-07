@@ -1,2 +1,3 @@
 # pyvshell
-Attempt to create a shell to VMware ESXi/vCenter
+
+First attempt to manage ESXi/vCenter through cmd python module and pyVmomi
