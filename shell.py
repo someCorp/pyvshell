@@ -4,22 +4,26 @@
 # pip install pyvmomi
 # pip install progress
 #
-from pyVim import connect
-from pyVmomi import vmodl
-from pyVmomi import vim
-from progress.bar import Bar
 
-from tools import pchelper
+try:
+    from pyVim import connect
+    from pyVmomi import vmodl
+    from pyVmomi import vim
+    from progress.bar import Bar
 
-import re
-import os
-import getpass
-import cmd
-import atexit
-import ssl
+    from tools import pchelper
 
-# Time for monkey patch!
-ssl._create_default_https_context = ssl._create_unverified_context
+    import re
+    import os
+    import getpass
+    import cmd
+    import atexit
+    import ssl
+    # Time for monkey patch!
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+except ImportError:
+    print("Please check your python modules")
 
 
 class someshell(cmd.Cmd):
@@ -131,7 +135,7 @@ class someshell(cmd.Cmd):
             print("")
             """
             TODO:
-                
+
             > SAVE DC STATE!!!
             > Be nicer.
             > Parameters
@@ -141,7 +145,8 @@ class someshell(cmd.Cmd):
             print("-" * 70)
 
             regex = input("Host regex?: ")
-            bar = Bar('Powered off/total (vcenter) VirtualMachines: ', max=len(objview.view))
+            bar = Bar('Powered off/total (vcenter) VirtualMachines: ',
+                      max=len(objview.view))
             for vm in objview.view:
                 """ MIND THIS!! :D
                 """
@@ -187,7 +192,8 @@ class someshell(cmd.Cmd):
             print("-" * 70)
 
             regex = input("Host regex?: ")
-            bar = Bar('Powered off/total (vcenter) VirtualMachines: ', max=len(objview.view))
+            bar = Bar('Powered off/total (vcenter) VirtualMachines: ',
+                      max=len(objview.view))
             for vm in objview.view:
                 """ MIND THIS!! :D
                 """
@@ -198,7 +204,6 @@ class someshell(cmd.Cmd):
 
         else:
             print("Please provide a vmware host to connect")
-
 
     def do_shell(self, line):
         "Run a shell command"
