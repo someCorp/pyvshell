@@ -2,7 +2,7 @@
 # Please install pyVmomi and progressbar
 #
 # pip install pyvmomi
-# pip install progressbar
+# pip install progress
 #
 from pyVim import connect
 from pyVmomi import vmodl
