@@ -130,29 +130,26 @@ class someshell(cmd.Cmd):
         if host:
             print("You're connected to {0}".format(host))
             print("-" * 70)
-
+            print("Hosts available here: ")
+            print("")
             """
-            SAVE DC STATE!!!
-
-            Debug only.
+            TODO:
+                
+            > SAVE DC STATE!!!
+            > Be nicer.
+            """
             for host in hosts.view:
                 print(host.name)
             print("-" * 70)
-            """
 
-            cluster = input("r710 or BL?: ")
-            bar = Bar('Powered off/total (vcenter): ', max=len(objview.view))
+            regex = input("Host regex?: ")
+            bar = Bar('Powered off/total (vcenter) VirtualMachines: ', max=len(objview.view))
             for vm in objview.view:
                 """ MIND THIS!! :D
                 """
-                if cluster == 'r710':
-                    if re.match(r'^DC0_C1.*', vm.runtime.host.name):
-                        vm.PowerOff()
-                        bar.next()
-                if cluster == 'BL':
-                    if re.match(r'^DC0_C0.*', vm.runtime.host.name):
-                        vm.PowerOff()
-                        bar.next()
+                if re.match(regex, vm.runtime.host.name):
+                    vm.PowerOff()
+                    bar.next()
             bar.finish()
 
         else:
