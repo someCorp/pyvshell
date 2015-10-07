@@ -2,6 +2,35 @@
 
 First attempt to manage ESXi/vCenter through cmd python module and pyVmomi
 
+## start command:
+
+    (Cmd) start someesxi.domain.tld
+    Please enter your username: root
+    Password:
+    You're connected to someesxi.domain.tld
+    ----------------------------------------------------------------------
+    Hosts available here:
+
+    DC0_C0_H0
+    DC0_C0_H1
+    DC0_C0_H2
+    DC0_C0_H3
+    DC0_C0_H4
+    DC0_C0_H5
+    DC0_C0_H6
+    DC0_C0_H7
+    DC0_C1_H0
+    DC0_C1_H1
+    DC0_C1_H2
+    DC0_C1_H3
+    DC0_C1_H4
+    DC0_C1_H5
+    DC0_C1_H6
+    DC0_C1_H7
+    ----------------------------------------------------------------------
+    Host regex?: ^DC0.*
+    Powered on/total (vcenter) VirtualMachines:  |################################| 48/48
+
 ## stop command:
 
     (Cmd) stop someesxi.domain.tld
@@ -30,7 +59,6 @@ First attempt to manage ESXi/vCenter through cmd python module and pyVmomi
     ----------------------------------------------------------------------
     Host regex?: DC0_C1.*
     Powered off/total (vcenter) VirtualMachines:  |################                | 24/48
-
 
 ## ls command:
 

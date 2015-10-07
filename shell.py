@@ -192,7 +192,7 @@ class someshell(cmd.Cmd):
             print("-" * 70)
 
             regex = input("Host regex?: ")
-            bar = Bar('Powered off/total (vcenter) VirtualMachines: ',
+            bar = Bar('Powered on/total (vcenter) VirtualMachines: ',
                       max=len(objview.view))
             for vm in objview.view:
                 """ MIND THIS!! :D
