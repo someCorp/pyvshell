@@ -18,9 +18,9 @@ try:
     import getpass
     import cmd
     import atexit
-    import ssl
+    #import ssl
     # Time for monkey patch!
-    ssl._create_default_https_context = ssl._create_unverified_context
+    #ssl._create_default_https_context = ssl._create_unverified_context
 
 except ImportError:
     print("Please check your python modules")
@@ -76,8 +76,38 @@ class someshell(cmd.Cmd):
         """
 
         self.host = host
+        args = host.split()
 
-        if host:
+        if len(args) == 2:
+            try:
+                vm_list = self.connect(args[0])
+                for vm in vm_list:
+                    if vm["runtime.powerState"] == 'poweredOn':
+                        print("-" * 70)
+                        print(
+                            "Name:                    {0}".format(vm["name"]))
+                        print("Instance UUID:           {0}".format(
+                            vm["config.instanceUuid"]))
+                        print("CPUs:                    {0}".format(
+                            vm["config.hardware.numCPU"]))
+                        print("MemoryMB:                {0}".format(
+                            vm["config.hardware.memoryMB"]))
+                        print("Guest PowerState:        {0}".format(
+                            vm["runtime.powerState"]))
+                        print("Guest Full Name:         {0}".format(
+                            vm["config.guestFullName"]))
+                        print("Guest Container Type:    {0}".format(
+                            vm["config.guestId"]))
+                        print("Container Version:       {0}".format(
+                            vm["config.version"]))
+
+
+
+            except vmodl.MethodFault as e:
+                print("Caught error")
+                return 0
+
+        if len(args) == 1:
             try:
                 vm_list = self.connect(host)
                 for vm in vm_list:
@@ -107,7 +137,7 @@ class someshell(cmd.Cmd):
                 print("Caught vmodl fault : ", e)
                 return 0
 
-        else:
+        if len(args) == 0:
             print("Please provide a hostname or IP address")
 
     def do_stop(self, host):
@@ -140,6 +170,13 @@ class someshell(cmd.Cmd):
             > Be nicer.
             > Parameters
             """
+            with open('save-state.txt', 'a') as f:
+                for vm in objview.view:
+                    f.write("Name           :  {}\n".format(vm.name))
+                    f.write("State          :  {}\n".format(vm.runtime.powerState))
+                    f.write("Instance UUID  :  {}\n".format(vm.config.instanceUuid))
+                    f.write('\n')
+
             for host in hosts.view:
                 print(host.name)
             print("-" * 70)
