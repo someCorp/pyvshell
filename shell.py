@@ -52,6 +52,14 @@ class someshell(cmd.Cmd):
                                               include_mors=True)
         return vm_data
 
+    def print_info(vm):
+        """ 
+        Function to wrap up basic info on vm
+        """
+        vminfo = {}
+        vminfo
+
+
     def do_ls(self, host):
         """
         Get all VM's on vCenter or ESXi.
@@ -83,6 +91,8 @@ class someshell(cmd.Cmd):
                 vm_list = self.connect(args[0])
                 for vm in vm_list:
                     if vm["runtime.powerState"] == 'poweredOn':
+                        return print_info(vm)
+                        """
                         print("-" * 70)
                         print(
                             "Name:                    {0}".format(vm["name"]))
@@ -100,8 +110,7 @@ class someshell(cmd.Cmd):
                             vm["config.guestId"]))
                         print("Container Version:       {0}".format(
                             vm["config.version"]))
-
-
+                        """
 
             except vmodl.MethodFault as e:
                 print("Caught error")
