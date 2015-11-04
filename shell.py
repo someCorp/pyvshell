@@ -19,9 +19,11 @@ try:
     import cmd
     import atexit
     import ssl
+    import warnings
     from tools import tasks
     # Time for monkey patch!
     ssl._create_default_https_context = ssl._create_unverified_context
+    warnings.filterwarnings("ignore")
 
 except ImportError:
     print("Please check your python modules")
@@ -249,15 +251,22 @@ class someshell(cmd.Cmd):
             """
 
             regex = input("Host regex?: ")
-            bar = Bar('Powered off/total (vcenter) VirtualMachines: ',
+            barvm = Bar('Powered off/total (vcenter) VirtualMachines: ',
                       max=len(objview.view))
             for vm in objview.view:
                 """ MIND THIS!! :D
                 """
                 if re.match(regex, vm.runtime.host.name):
                     vm.PowerOff()
-                    bar.next()
-            bar.finish()
+                    barvm.next()
+            barvm.finish()
+
+
+            for host in hosts.view:
+                if re.match(regex, host.name):
+                    print("Shutting down host {0}".format(host.name))
+                    vim.HostSystem.Shutdown(host, True)
+                    
 
         else:
             print("Please provide a vmware host to connect")
