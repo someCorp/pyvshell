@@ -197,41 +197,13 @@ class someshell(cmd.Cmd):
             print("-" * 70)
             print("Hosts available here: ")
             print("")
-            """
-            TODO:
-
-            > SAVE DC STATE!!!
-            > Be nicer.
-            > Parameters
-            """
             
-            """
-            Save current state datacenter
-
-            """
-
-            with open('save-state.txt', 'w') as f:
-                for vm in objview.view:
-                    f.write("Name           :  {}\n".format(vm.name))
-                    f.write("State          :  {}\n".format(vm.runtime.powerState))
-                    f.write("Instance UUID  :  {}\n".format(vm.config.instanceUuid))
-                    f.write('\n')
 
             """
             Save only poweredOn machines in order to powerOn afterwards
 
             """
 
-            with open('uuidpoweredon.txt', 'w') as f:
-                for vm in objview.view:
-                    if vm.runtime.powerState == 'poweredOn':
-                        f.write("{}".format(vm.config.instanceUuid).strip())
-                        f.write('\n')
-
-            """
-            Print vmware hosts available to stop
-            
-            """
 
 
             for host in hosts.view:
@@ -246,9 +218,20 @@ class someshell(cmd.Cmd):
             regex = input("Host regex?: ")
             barvm = Bar('Powered off/total (vcenter) VirtualMachines: ',
                       max=len(objview.view))
+
+            """
+            Save powereOn machines on host
+            """
+
+            with open('uuidpoweredon.txt', 'w') as f:
+                for vm in objview.view:
+                    if vm.runtime.powerState == 'poweredOn':
+                        if re.match(regex, vm.runtime.host.name):
+                            f.write(vm.config.instanceUuid.strip())
+                            f.write('\n')
+
+
             for vm in objview.view:
-                """ MIND THIS!! :D
-                """
                 if re.match(regex, vm.runtime.host.name):
                     vm.PowerOff()
                     barvm.next()
