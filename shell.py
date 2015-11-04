@@ -55,13 +55,6 @@ class someshell(cmd.Cmd):
                                               include_mors=True)
         return vm_data
 
-    def print_info(vm):
-        """ 
-        Function to wrap up basic info on vm
-        """
-        vminfo = {}
-        vminfo
-
 
     def do_ls(self, host):
         """
