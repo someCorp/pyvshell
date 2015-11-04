@@ -264,8 +264,8 @@ class someshell(cmd.Cmd):
 
             for host in hosts.view:
                 if re.match(regex, host.name):
-                    print("host.Shutdown() for {}".format(host.name))
-                    host.Shutdown()
+                    print("Shutting down host {0}".format(host.name))
+                    vim.HostSystem.Shutdown(host, True)
                     
 
         else:
