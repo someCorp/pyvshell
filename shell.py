@@ -18,9 +18,9 @@ try:
     import getpass
     import cmd
     import atexit
-    #import ssl
+    import ssl
     # Time for monkey patch!
-    #ssl._create_default_https_context = ssl._create_unverified_context
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 except ImportError:
     print("Please check your python modules")
