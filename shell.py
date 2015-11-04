@@ -19,6 +19,7 @@ try:
     import cmd
     import atexit
     import ssl
+    from tools import tasks
     # Time for monkey patch!
     ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -91,8 +92,6 @@ class someshell(cmd.Cmd):
                 vm_list = self.connect(args[0])
                 for vm in vm_list:
                     if vm["runtime.powerState"] == 'poweredOn':
-                        return print_info(vm)
-                        """
                         print("-" * 70)
                         print(
                             "Name:                    {0}".format(vm["name"]))
@@ -110,7 +109,6 @@ class someshell(cmd.Cmd):
                             vm["config.guestId"]))
                         print("Container Version:       {0}".format(
                             vm["config.version"]))
-                        """
 
             except vmodl.MethodFault as e:
                 print("Caught error")
@@ -150,8 +148,40 @@ class someshell(cmd.Cmd):
             print("Please provide a hostname or IP address")
 
     def do_stop(self, host):
-        """ Shutdown a cluster
+        """ 
+        Shutdown a cluster based on a regex.
+        First it will show which hosts are available and then will ask Host regex?.
+        If no regex is entered IT WILL ASUMME EVERYTHING!!!
+
+        (Cmd) stop host 
+        Please enter your username: root
+        Password: 
+        You're connected to host
+        ----------------------------------------------------------------------
+        Hosts available here: 
+
+        DC0_C0_H0
+        DC0_C0_H1
+        DC0_C0_H2
+        DC0_C0_H3
+        DC0_C0_H4
+        DC0_C0_H5
+        DC0_C0_H6
+        DC0_C0_H7
+        DC0_C1_H0
+        DC0_C1_H1
+        DC0_C1_H2
+        DC0_C1_H3
+        DC0_C1_H4
+        DC0_C1_H5
+        DC0_C1_H6
+        DC0_C1_H7
+        ----------------------------------------------------------------------
+        Host regex?: DC0.*
+        Powered off/total (vcenter) VirtualMachines:  |################################| 46/46
+
         """
+
         user = input("Please enter your username: ")
         password = getpass.getpass("Password: ")
         SI = connect.SmartConnect(host=host, user=user,
@@ -179,6 +209,12 @@ class someshell(cmd.Cmd):
             > Be nicer.
             > Parameters
             """
+            
+            """
+            Save current state datacenter
+
+            """
+
             with open('save-state.txt', 'w') as f:
                 for vm in objview.view:
                     f.write("Name           :  {}\n".format(vm.name))
@@ -186,17 +222,31 @@ class someshell(cmd.Cmd):
                     f.write("Instance UUID  :  {}\n".format(vm.config.instanceUuid))
                     f.write('\n')
 
+            """
+            Save only poweredOn machines in order to powerOn afterwards
+
+            """
+
             with open('uuidpoweredon.txt', 'w') as f:
                 for vm in objview.view:
                     if vm.runtime.powerState == 'poweredOn':
                         f.write("{}".format(vm.config.instanceUuid).strip())
                         f.write('\n')
 
+            """
+            Print vmware hosts available to stop
+            
+            """
 
 
             for host in hosts.view:
                 print(host.name)
             print("-" * 70)
+
+            """
+            Asks for vmware hosts regex
+
+            """
 
             regex = input("Host regex?: ")
             bar = Bar('Powered off/total (vcenter) VirtualMachines: ',
@@ -211,57 +261,88 @@ class someshell(cmd.Cmd):
 
         else:
             print("Please provide a vmware host to connect")
-
+            
     def do_start(self, host):
-        """ Start a cluster
         """
-        user = input("Please enter your username: ")
-        password = getpass.getpass("Password: ")
-        SI = connect.SmartConnect(host=host, user=user,
-                                  pwd=password,
-                                  port=443)
+        Start all VM's on vCenter or ESXi given a uuid file.
+        It will ask you an username and valid password.
+        Usage example and output:
+                                                                               
+        (Cmd) start esxi.domain.tld uuidon.txt
+        Please enter your username: root
 
-        content = SI.RetrieveContent()
-        objview = content.viewManager.CreateContainerView(content.rootFolder,
-                                                          [vim.VirtualMachine],
-                                                          True)
 
-        hosts = content.viewManager.CreateContainerView(content.rootFolder,
-                                                        [vim.HostSystem],
-                                                        True)
+        You can check if it is powered on or not.
 
-        if host:
-            print("You're connected to {0}".format(host))
-            print("-" * 70)
-            print("Hosts available here: ")
-            print("")
-            """
-            TODO:
+        (Cmd) ls esxi.domain.tld on
+        Please enter your username: root
+        Password: 
+        ----------------------------------------------------------------------
+        Name:                    DC0_C1_RP0_VM0
+        Instance UUID:           503b382f-0ec4-b961-9461-883e0c759b31
+        CPUs:                    1
+        MemoryMB:                64
+        Guest PowerState:        poweredOn
+        Guest Full Name:         Microsoft Windows Server 2003 Standard (32-bit)
+        Guest Container Type:    winNetStandardGuest
+        Container Version:       vmx-07
+                                                                               
+        """
+                                                                               
+        self.host = host
+        args = host.split()
+                                                                               
+        if len(args) == 2:
+            try:
 
-            > SAVE DC STATE!!!
-            > Be nicer.
-            """
-            for host in hosts.view:
-                print(host.name)
-            print("-" * 70)
+                user = input("Please enter your username: ")
+                password = getpass.getpass("Password: ")
 
-            regex = input("Host regex?: ")
-            bar = Bar('Powered on/total (vcenter) VirtualMachines: ',
-                      max=len(objview.view))
-            for vm in objview.view:
-                """ MIND THIS!! :D
-                """
-                if re.match(regex, vm.runtime.host.name):
-                    vm.PowerOn()
-                    bar.next()
-            bar.finish()
+                SI = connect.SmartConnect(host=args[0],
+                        user=user,
+                        pwd=password)
 
-        else:
-            print("Please provide a vmware host to connect")
+                with open(args[1]) as uuid:
+                    for line in uuid:
+                        line = line.strip()
+                        if uuid:
+                            try:
+                                VM = SI.content.searchIndex.FindByUuid(None, line, True, True)
+                                TASK = VM.PowerOn()
+                                tasks.wait_for_tasks(SI, [TASK])
+
+                            except vim.fault.InvalidPowerState:
+                                print("{0} Its already powered On!!".format(line))
+
+
+            except vmodl.MethodFault as e:
+                print("Caught vmodl fault : ", e)
+                return 0
+
+
+                                                                               
+        if len(args) == 1:
+            try:
+                print("Please enter a file containing uuid to power on!!")
+
+                                                                               
+            except vmodl.MethodFault as e:
+                print("Caught vmodl fault : ", e)
+                return 0
+                                                                               
+        if len(args) == 0:
+            print("Please provide a hostname or IP address")
+
 
     def do_shell(self, line):
-        "Run a shell command"
-        print("running shell command:", line)
+        """
+        Yes you can! shell is available thorough !
+
+        (Cmd) !uname -a
+        running shell command: uname -a
+        Linux lsanmartin 3.13.0-49-generic #83-Ubuntu SMP Fri Apr 10 20:11:33 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
+
+        """
         output = os.popen(line).read()
         print(output)
         self.last_output = output
