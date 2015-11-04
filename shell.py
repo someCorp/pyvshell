@@ -179,12 +179,20 @@ class someshell(cmd.Cmd):
             > Be nicer.
             > Parameters
             """
-            with open('save-state.txt', 'a') as f:
+            with open('save-state.txt', 'w') as f:
                 for vm in objview.view:
                     f.write("Name           :  {}\n".format(vm.name))
                     f.write("State          :  {}\n".format(vm.runtime.powerState))
                     f.write("Instance UUID  :  {}\n".format(vm.config.instanceUuid))
                     f.write('\n')
+
+            with open('uuidpoweredon.txt', 'w') as f:
+                for vm in objview.view:
+                    if vm.runtime.powerState == 'poweredOn':
+                        f.write("{}".format(vm.config.instanceUuid).strip())
+                        f.write('\n')
+
+
 
             for host in hosts.view:
                 print(host.name)
