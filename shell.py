@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Please install pyVmomi and progressbar
+# Please install these modules 
 #
 # pip install pyvmomi
 # pip install progress
